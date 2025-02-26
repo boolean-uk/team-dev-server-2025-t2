@@ -71,6 +71,69 @@ export const updateById = async (req, res) => {
     role
   } = req.body
 
+  // Input validation patterns
+  const validationPatterns = {
+    name: /^[a-zA-Z\s-']{2,50}$/,
+    email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+    password:
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+    biography: /^[\s\S]{0,500}$/,
+    githubUrl: /^https:\/\/github\.com\/[a-zA-Z0-9-]+$/,
+    role: /^(STUDENT|TEACHER)$/
+  }
+
+  // Validation helper function
+  const validateField = (field, value, pattern) => {
+    if (value === undefined || value === null || value === '') return true
+    return pattern.test(value)
+  }
+
+  // Validate input fields
+  const validationErrors = {}
+
+  if (
+    firstName &&
+    !validateField('firstName', firstName, validationPatterns.name)
+  ) {
+    validationErrors.firstName = 'Invalid first name format'
+  }
+  if (
+    lastName &&
+    !validateField('lastName', lastName, validationPatterns.name)
+  ) {
+    validationErrors.lastName = 'Invalid last name format'
+  }
+  if (email && !validateField('email', email, validationPatterns.email)) {
+    validationErrors.email = 'Invalid email format'
+  }
+  if (
+    biography &&
+    !validateField('biography', biography, validationPatterns.biography)
+  ) {
+    validationErrors.biography = 'Biography must not exceed 500 characters'
+  }
+  if (
+    githubUrl &&
+    !validateField('githubUrl', githubUrl, validationPatterns.githubUrl)
+  ) {
+    validationErrors.githubUrl = 'Invalid GitHub URL format'
+  }
+  if (
+    password &&
+    !validateField('password', password, validationPatterns.password)
+  ) {
+    validationErrors.password =
+      'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*#?&)'
+  }
+  if (role && !validateField('role', role, validationPatterns.role)) {
+    validationErrors.role = 'Invalid role'
+  }
+
+  // Check for validation errors
+  if (Object.keys(validationErrors).length > 0) {
+    return sendDataResponse(res, 400, { validation: validationErrors })
+  }
+
   const cohortId = cohortIdSnake ?? cohortIdCamel
 
   try {
