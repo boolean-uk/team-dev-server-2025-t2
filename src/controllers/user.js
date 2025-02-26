@@ -3,9 +3,33 @@ import { sendDataResponse, sendMessageResponse } from '../utils/responses.js'
 
 export const create = async (req, res) => {
   const userToCreate = await User.fromJson(req.body)
+  const password = await req.body.password
+  const missingPasswordMatch = []
 
   try {
     const existingUser = await User.findByEmail(userToCreate.email)
+   /* eslint-disable */
+   if (password.length < 8) {
+    missingPasswordMatch.push('Password must be at least 8 characters long')
+  }
+  if (!/[A-Za-z]/.test(password)) {
+    missingPasswordMatch.push('Password must contain at least one letter')
+  }
+  if (!/[A-Z]/.test(password)) {
+    missingPasswordMatch.push('Password must contain at least one uppercase letter')
+  }
+  if (!/\d/.test(password)) {
+    missingPasswordMatch.push('Password must contain at least one number')
+  }
+  if (!/[@$!%*?&]/.test(password)) {
+    missingPasswordMatch.push('Password must contain at least one special character')
+  }
+
+  if (missingPasswordMatch.length > 0) {
+    return sendDataResponse(res, 400, { password: missingPasswordMatch })
+  }
+
+  /* eslint-enable */
 
     if (existingUser) {
       return sendDataResponse(res, 400, { email: 'Email already in use' })
