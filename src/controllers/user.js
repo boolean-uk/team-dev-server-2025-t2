@@ -114,13 +114,8 @@ export const updateById = async (req, res) => {
     }
 
     // Profile fields any user can update on their own profile
-    if (isOwnProfile || isTeacher) {
-      addValidField('firstName', firstName)
-      addValidField('lastName', lastName)
-      addValidField('bio', biography)
-      addValidField('githubUrl', githubUrl)
-      addValidField('email', email)
-      if (password) {
+    if (isOwnProfile) {
+      if (password && typeof password === 'string') {
         updateData.passwordHash = await bcrypt.hash(password, 8)
       }
     }
@@ -136,6 +131,15 @@ export const updateById = async (req, res) => {
       if (role === 'STUDENT' || role === 'TEACHER') {
         updateData.role = role
       }
+    }
+
+    // Profile fields any user can update on their own profile
+    if (isOwnProfile || isTeacher) {
+      addValidField('firstName', firstName)
+      addValidField('lastName', lastName)
+      addValidField('bio', biography)
+      addValidField('githubUrl', githubUrl)
+      addValidField('email', email)
     }
 
     // If no valid fields to update
