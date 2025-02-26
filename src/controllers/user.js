@@ -73,27 +73,54 @@ export const getAll = async (req, res) => {
   let firstNameUsers
   let lastNameUsers
 
-  if (firstName && lastName) {
-    firstNameUsers = await User.findManyByFirstName(firstName)
-    lastNameUsers = await User.findManyByLastName(lastName)
-    foundUsers = firstNameUsers.filter((user) =>
-      lastNameUsers.some((u) => u.id === user.id)
-    )
-  } else if (firstName) {
-    foundUsers = await User.findManyByFirstName(firstName)
-  } else if (lastName) {
-    foundUsers = await User.findManyByLastName(lastName)
-  } else {
-    foundUsers = await User.findAll()
-  }
+  const namePattern = /^[a-zA-Z\s-']{1,50}$/
 
-  const formattedUsers = foundUsers.map((user) => {
-    return {
-      ...user.toJSON().user
+  try {
+    if (
+      firstName &&
+      !namePattern.test(firstName) &&
+      lastName &&
+      !namePattern.test(lastName)
+    ) {
+      return sendDataResponse(res, 400, {
+        error: 'Invalid first name and last name format.'
+      })
     }
-  })
+    if (firstName && !namePattern.test(firstName)) {
+      return sendDataResponse(res, 400, { error: 'Invalid first name format.' })
+    }
+    if (lastName && !namePattern.test(lastName)) {
+      return sendDataResponse(res, 400, { error: 'Invalid last name format.' })
+    }
 
-  return sendDataResponse(res, 200, { users: formattedUsers })
+    if (firstName && lastName) {
+      firstNameUsers = await User.findManyByFirstName(firstName)
+      lastNameUsers = await User.findManyByLastName(lastName)
+      foundUsers = firstNameUsers.filter((user) =>
+        lastNameUsers.some((u) => u.id === user.id)
+      )
+    } else if (firstName) {
+      foundUsers = await User.findManyByFirstName(firstName)
+    } else if (lastName) {
+      foundUsers = await User.findManyByLastName(lastName)
+    } else {
+      foundUsers = await User.findAll()
+    }
+
+    if (!foundUsers || foundUsers.length === 0) {
+      return sendDataResponse(res, 404, { error: 'No users found.' })
+    }
+    const formattedUsers = foundUsers.map((user) => {
+      return {
+        ...user.toJSON().user
+      }
+    })
+    return sendDataResponse(res, 200, { users: formattedUsers })
+  } catch (error) {
+    return sendDataResponse(res, 500, {
+      error: 'An unexpected error occurred.'
+    })
+  }
 }
 
 export const updateById = async (req, res) => {
