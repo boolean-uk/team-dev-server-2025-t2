@@ -1,3 +1,4 @@
+import validator from 'validator'
 import User from '../domain/user.js'
 import { sendDataResponse, sendMessageResponse } from '../utils/responses.js'
 
@@ -5,6 +6,10 @@ export const create = async (req, res) => {
   const userToCreate = await User.fromJson(req.body)
 
   try {
+    if (!validator.isEmail(userToCreate.email)) {
+      return sendDataResponse(res, 400, { email: 'Invalid email format' })
+    }
+
     const existingUser = await User.findByEmail(userToCreate.email)
 
     if (existingUser) {
