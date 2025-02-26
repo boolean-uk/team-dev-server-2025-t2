@@ -170,4 +170,57 @@ export default class User {
 
     return foundUsers.map((user) => User.fromDb(user))
   }
+
+  async update(data) {
+    const updateData = {
+      where: {
+        id: this.id
+      },
+      data: {},
+      include: {
+        profile: true
+      }
+    }
+
+    // Handle user-level updates
+    if (data.email && data.email !== 'string')
+      updateData.data.email = data.email
+    if (data.passwordHash) updateData.data.password = data.passwordHash
+    if (data.role && (data.role === 'STUDENT' || data.role === 'TEACHER')) {
+      updateData.data.role = data.role
+    }
+    if (typeof data.cohortId === 'number') {
+      updateData.data.cohortId = data.cohortId
+    }
+
+    // Handle profile-related updates
+    const profileUpdates = {}
+    let hasProfileUpdates = false
+
+    if (data.firstName && data.firstName !== 'string') {
+      profileUpdates.firstName = data.firstName
+      hasProfileUpdates = true
+    }
+    if (data.lastName && data.lastName !== 'string') {
+      profileUpdates.lastName = data.lastName
+      hasProfileUpdates = true
+    }
+    if (data.bio && data.bio !== 'string') {
+      profileUpdates.bio = data.bio
+      hasProfileUpdates = true
+    }
+    if (data.githubUrl && data.githubUrl !== 'string') {
+      profileUpdates.githubUrl = data.githubUrl
+      hasProfileUpdates = true
+    }
+
+    if (hasProfileUpdates) {
+      updateData.data.profile = {
+        update: profileUpdates
+      }
+    }
+
+    const updatedUser = await dbClient.user.update(updateData)
+    return User.fromDb(updatedUser)
+  }
 }
