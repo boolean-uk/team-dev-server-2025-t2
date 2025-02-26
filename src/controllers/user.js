@@ -3,6 +3,16 @@ import { sendDataResponse, sendMessageResponse } from '../utils/responses.js'
 
 export const create = async (req, res) => {
   const userToCreate = await User.fromJson(req.body)
+  const password = await req.body.password
+
+ /* eslint-disable */
+  if (!password.match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)) {
+    return sendDataResponse(res, 400, { 
+    password: 
+      'Password must be at least 8 characters long, contain at least one letter, one number, and one special character' 
+  })
+}
+  /* eslint-enable */
 
   try {
     const existingUser = await User.findByEmail(userToCreate.email)
