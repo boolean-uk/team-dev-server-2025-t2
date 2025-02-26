@@ -1,5 +1,6 @@
 import User from '../domain/user.js'
 import { sendDataResponse, sendMessageResponse } from '../utils/responses.js'
+import bcrypt from 'bcrypt'
 
 export const create = async (req, res) => {
   const userToCreate = await User.fromJson(req.body)
@@ -57,11 +58,101 @@ export const getAll = async (req, res) => {
 }
 
 export const updateById = async (req, res) => {
-  const { cohort_id: cohortId } = req.body
+  const userId = parseInt(req.params.id)
+  const {
+    firstName,
+    lastName,
+    email,
+    biography,
+    githubUrl,
+    password,
+    cohort_id: cohortIdSnake,
+    cohortId: cohortIdCamel,
+    role
+  } = req.body
 
-  if (!cohortId) {
-    return sendDataResponse(res, 400, { cohort_id: 'Cohort ID is required' })
+  const cohortId = cohortIdSnake ?? cohortIdCamel
+
+  try {
+    const userToUpdate = await User.findById(userId)
+
+    if (!userToUpdate) {
+      return sendDataResponse(res, 404, { id: 'User not found' })
+    }
+
+    // Check if user is updating their own profile or is a teacher
+    const isOwnProfile = req.user.id === userId
+    const isTeacher = req.user.role === 'TEACHER'
+
+    if (!isOwnProfile && !isTeacher) {
+      return sendDataResponse(res, 403, {
+        authorization: 'You are not authorized to update this profile'
+      })
+    }
+
+    // Check if student is trying to update restricted fields
+    if (!isTeacher && (cohortId || role)) {
+      return sendDataResponse(res, 403, {
+        authorization:
+          'Students cannot modify cohort or role information. Please contact a teacher for these changes.'
+      })
+    }
+
+    // Create update data object
+    const updateData = {}
+
+    // Helper function to validate and add field if it has a valid value
+    const addValidField = (field, value) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== '' &&
+        value !== 'string'
+      ) {
+        updateData[field] = value
+      }
+    }
+
+    // Profile fields any user can update on their own profile
+    if (isOwnProfile || isTeacher) {
+      addValidField('firstName', firstName)
+      addValidField('lastName', lastName)
+      addValidField('bio', biography)
+      addValidField('githubUrl', githubUrl)
+      addValidField('email', email)
+      if (password) {
+        updateData.passwordHash = await bcrypt.hash(password, 8)
+      }
+    }
+
+    // Fields only teachers can update
+    if (isTeacher) {
+      if (cohortId !== undefined) {
+        const cohortIdInt = parseInt(cohortId, 10)
+        if (!isNaN(cohortIdInt)) {
+          updateData.cohortId = cohortIdInt
+        }
+      }
+      if (role === 'STUDENT' || role === 'TEACHER') {
+        updateData.role = role
+      }
+    }
+
+    // If no valid fields to update
+    if (Object.keys(updateData).length === 0) {
+      return sendDataResponse(res, 400, {
+        fields: 'No valid fields provided for update'
+      })
+    }
+
+    const updatedUser = await userToUpdate.update(updateData)
+
+    return sendDataResponse(res, 200, updatedUser)
+  } catch (error) {
+    return sendMessageResponse(
+      res,
+      500,
+      `Unable to update user: ${error.message}`
+    )
   }
-
-  return sendDataResponse(res, 201, { user: { cohort_id: cohortId } })
 }
