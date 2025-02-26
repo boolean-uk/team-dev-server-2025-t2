@@ -72,3 +72,25 @@ function validateTokenType(type) {
 
   return true
 }
+
+export async function validateCohortAccess(req, res, next) {
+  const cohortId = parseInt(req.params.id)
+
+  if (!req.user) {
+    return sendMessageResponse(res, 500, 'Unable to verify user')
+  }
+
+  // Teachers can access any cohort
+  if (req.user.role === 'TEACHER') {
+    return next()
+  }
+
+  // Students can only access their own cohort
+  if (req.user.cohortId !== cohortId) {
+    return sendDataResponse(res, 403, {
+      authorization: 'You are not authorized to access this cohort'
+    })
+  }
+
+  next()
+}
