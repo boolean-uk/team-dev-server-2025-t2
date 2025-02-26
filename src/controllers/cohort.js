@@ -2,6 +2,12 @@ import { createCohort } from '../domain/cohort.js'
 import { sendDataResponse, sendMessageResponse } from '../utils/responses.js'
 import dbClient from '../utils/dbClient.js'
 
+export const cohortTypeDisplay = {
+  SOFTWARE_DEVELOPMENT: 'Software Development',
+  FRONTEND_DEVELOPMENT: 'Front-End Development',
+  DATA_ANALYTICS: 'Data Analytics'
+}
+
 export const create = async (req, res) => {
   try {
     const createdCohort = await createCohort()
@@ -32,6 +38,16 @@ export const getCohortMembers = async (req, res) => {
       }
     })
 
+    const cohort = await dbClient.cohort.findUnique({
+      where: {
+        id: cohortId
+      },
+      select: {
+        id: true,
+        type: true
+      }
+    })
+
     if (!cohortMembers.length) {
       return sendDataResponse(res, 404, {
         cohort: 'No members found in this cohort'
@@ -57,7 +73,13 @@ export const getCohortMembers = async (req, res) => {
       }
     })
 
-    return sendDataResponse(res, 200, { members: formattedMembers })
+    return sendDataResponse(res, 200, {
+      cohort: {
+        id: cohort.id,
+        type: cohortTypeDisplay[cohort.type]
+      },
+      members: formattedMembers
+    })
   } catch (error) {
     return sendMessageResponse(res, 500, 'Unable to fetch cohort members')
   }

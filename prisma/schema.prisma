@@ -38,8 +38,15 @@ model Profile {
   githubUrl   String?
 }
 
+enum CohortType {
+  SOFTWARE_DEVELOPMENT
+  FRONTEND_DEVELOPMENT
+  DATA_ANALYTICS
+}
+
 model Cohort {
   id            Int           @id @default(autoincrement())
+  type          CohortType    @default(SOFTWARE_DEVELOPMENT)
   users         User[]
   deliveryLogs  DeliveryLog[]
 }
