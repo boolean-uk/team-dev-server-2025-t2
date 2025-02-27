@@ -14,6 +14,13 @@ export const createComment = async (req, res) => {
       })
     }
 
+    const MAX_COMMENT_LENGTH = 2560
+    if (content.length > MAX_COMMENT_LENGTH) {
+      return sendDataResponse(res, 400, {
+        content: `Comment content cannot exceed ${MAX_COMMENT_LENGTH} characters`
+      })
+    }
+
     // Check if post exists
     const post = await dbClient.post.findUnique({
       where: { id: postId }
