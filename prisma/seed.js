@@ -3,30 +3,96 @@ import bcrypt from 'bcrypt'
 const prisma = new PrismaClient()
 
 async function seed() {
-  const cohort = await createCohort()
+  // Create 3 cohorts
+  const cohort1 = await createCohort()
+  const cohort2 = await createCohort()
+  const cohort3 = await createCohort()
 
-  const student = await createUser(
-    'student@test.com',
+  // Create 3 students
+  const student1 = await createUser(
+    'student1@test.com',
     'Testpassword1!',
-    cohort.id,
-    'Joe',
-    'Bloggs',
-    'Hello, world!',
+    cohort1.id,
+    'firstName1',
+    'lastName1',
+    'Student 1 bio',
     'student1'
   )
-  const teacher = await createUser(
-    'teacher@test.com',
+  const student2 = await createUser(
+    'student2@test.com',
+    'Testpassword1!',
+    cohort2.id,
+    'firstName2',
+    'lastName2',
+    'Student 2 bio',
+    'student2'
+  )
+  const student3 = await createUser(
+    'student3@test.com',
+    'Testpassword1!',
+    cohort3.id,
+    'firstName3',
+    'lastName3',
+    'Student 3 bio',
+    'student3'
+  )
+
+  // Create 3 teachers
+  const teacher1 = await createUser(
+    'teacher1@test.com',
     'Testpassword1!',
     null,
-    'Rick',
-    'Sanchez',
-    'Hello there!',
+    'teacherFirst1',
+    'teacherLast1',
+    'Teacher 1 bio',
     'teacher1',
     'TEACHER'
   )
+  const teacher2 = await createUser(
+    'teacher2@test.com',
+    'Testpassword1!',
+    null,
+    'teacherFirst2',
+    'teacherLast2',
+    'Teacher 2 bio',
+    'teacher2',
+    'TEACHER'
+  )
+  const teacher3 = await createUser(
+    'teacher3@test.com',
+    'Testpassword1!',
+    null,
+    'teacherFirst3',
+    'teacherLast3',
+    'Teacher 3 bio',
+    'teacher3',
+    'TEACHER'
+  )
 
-  await createPost(student.id, 'My first post!')
-  await createPost(teacher.id, 'Hello, students')
+  // Create 3 posts for each user
+  await createPost(student1.id, 'Student 1 first post!')
+  await createPost(student1.id, 'Student 1 second post!')
+  await createPost(student1.id, 'Student 1 third post!')
+
+  await createPost(student2.id, 'Student 2 first post!')
+  await createPost(student2.id, 'Student 2 second post!')
+  await createPost(student2.id, 'Student 2 third post!')
+
+  await createPost(student3.id, 'Student 3 first post!')
+  await createPost(student3.id, 'Student 3 second post!')
+  await createPost(student3.id, 'Student 3 third post!')
+
+  await createPost(teacher1.id, 'Teacher 1 first post!')
+  await createPost(teacher1.id, 'Teacher 1 second post!')
+  await createPost(teacher1.id, 'Teacher 1 third post!')
+
+  await createPost(teacher2.id, 'Teacher 2 first post!')
+  await createPost(teacher2.id, 'Teacher 2 second post!')
+  await createPost(teacher2.id, 'Teacher 2 third post!')
+
+  await createPost(teacher3.id, 'Teacher 3 first post!')
+  await createPost(teacher3.id, 'Teacher 3 second post!')
+  await createPost(teacher3.id, 'Teacher 3 third post!')
 
   process.exit(0)
 }
@@ -35,10 +101,23 @@ async function createPost(userId, content) {
   const post = await prisma.post.create({
     data: {
       userId,
-      content
+      content,
+      likes: {
+        create: [{ userId: userId === 1 ? 2 : 1 }]
+      },
+      comments: {
+        create: [
+          {
+            content: 'Great post!',
+            userId: userId === 1 ? 2 : 1
+          }
+        ]
+      }
     },
     include: {
-      user: true
+      user: true,
+      likes: true,
+      comments: true
     }
   })
 

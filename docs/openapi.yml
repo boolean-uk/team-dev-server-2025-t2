@@ -491,30 +491,31 @@ components:
                     type: string
                   createdAt:
                     type: string
-                    format: string
-                  updatedAt:
-                    type: string
-                    format: string
+                    format: date-time
                   author:
                     type: object
                     properties:
                       id:
                         type: integer
-                      cohortId:
-                        type: integer
-                      role:
-                        type: string
                       firstName:
                         type: string
                       lastName:
                         type: string
-                      bio:
-                        type: string
-                      githubUrl:
-                        type: string
-                      profileImageUrl:
-                        type: string
-    
+                      cohort:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          type:
+                            type: string
+                  stats:
+                    type: object
+                    properties:
+                      likes:
+                        type: integer
+                      comments:
+                        type: integer
+
     CreatedUser:
       type: object
       properties:

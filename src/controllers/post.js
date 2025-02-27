@@ -1,4 +1,5 @@
-import { sendDataResponse } from '../utils/responses.js'
+import { sendDataResponse, sendMessageResponse } from '../utils/responses.js'
+import dbClient from '../utils/dbClient.js'
 
 export const create = async (req, res) => {
   const { content } = req.body
@@ -11,18 +12,55 @@ export const create = async (req, res) => {
 }
 
 export const getAll = async (req, res) => {
-  return sendDataResponse(res, 200, {
-    posts: [
-      {
-        id: 1,
-        content: 'Hello world!',
-        author: { ...req.user }
+  try {
+    const posts = await dbClient.post.findMany({
+      orderBy: {
+        createdAt: 'desc'
       },
-      {
-        id: 2,
-        content: 'Hello from the void!',
-        author: { ...req.user }
+      include: {
+        user: {
+          include: {
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            },
+            cohort: {
+              select: {
+                id: true,
+                type: true
+              }
+            }
+          }
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true
+          }
+        }
       }
-    ]
-  })
+    })
+
+    const formattedPosts = posts.map((post) => ({
+      id: post.id,
+      content: post.content,
+      createdAt: post.createdAt,
+      author: {
+        id: post.user.id,
+        firstName: post.user.profile.firstName,
+        lastName: post.user.profile.lastName,
+        cohort: post.user.cohort
+      },
+      stats: {
+        likes: post._count.likes,
+        comments: post._count.comments
+      }
+    }))
+
+    return sendDataResponse(res, 200, { posts: formattedPosts })
+  } catch (error) {
+    return sendMessageResponse(res, 500, 'Unable to fetch posts')
+  }
 }
