@@ -36,7 +36,6 @@ async function seed() {
     'Student 3 bio',
     'student3'
   )
-
   // Create 3 teachers
   const teacher1 = await createUser(
     'teacher1@test.com',
