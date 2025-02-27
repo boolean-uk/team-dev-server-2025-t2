@@ -1,5 +1,10 @@
 import { Router } from 'express'
-import { create, getAll, editPostById, toggleLike } from '../controllers/post.js'
+import {
+  create,
+  getAll,
+  editPostById,
+  toggleLike
+} from '../controllers/post.js'
 import { validateAuthentication } from '../middleware/auth.js'
 
 const router = Router()
