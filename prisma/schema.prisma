@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["extendedIndexes"]
 }
 
 datasource db {
@@ -26,6 +27,8 @@ model User {
   cohort        Cohort?   @relation(fields: [cohortId], references: [id])
   posts         Post[]
   deliveryLogs  DeliveryLog[]
+  postLikes     PostLike[]
+  postComments  PostComment[]
 }
 
 model Profile {
@@ -52,10 +55,38 @@ model Cohort {
 }
 
 model Post {
-  id      Int           @id @default(autoincrement())
-  content String
-  userId  Int
-  user    User          @relation(fields: [userId], references: [id])
+  id        Int           @id @default(autoincrement())
+  content   String
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  likes     PostLike[]
+  comments  PostComment[]
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model PostLike {
+  id        Int      @id @default(autoincrement())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model PostComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model DeliveryLog {
