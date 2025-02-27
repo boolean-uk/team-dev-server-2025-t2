@@ -13,6 +13,7 @@ async function seed() {
     'student1@test.com',
     'Testpassword1!',
     cohort1.id,
+    'student1username',
     'firstName1',
     'lastName1',
     'Student 1 bio',
@@ -22,6 +23,7 @@ async function seed() {
     'student2@test.com',
     'Testpassword1!',
     cohort2.id,
+    'student2username',
     'firstName2',
     'lastName2',
     'Student 2 bio',
@@ -31,6 +33,7 @@ async function seed() {
     'student3@test.com',
     'Testpassword1!',
     cohort3.id,
+    'student3username',
     'firstName3',
     'lastName3',
     'Student 3 bio',
@@ -41,6 +44,7 @@ async function seed() {
     'teacher1@test.com',
     'Testpassword1!',
     null,
+    'teacher1username',
     'teacherFirst1',
     'teacherLast1',
     'Teacher 1 bio',
@@ -51,6 +55,7 @@ async function seed() {
     'teacher2@test.com',
     'Testpassword1!',
     null,
+    'teacher2username',
     'teacherFirst2',
     'teacherLast2',
     'Teacher 2 bio',
@@ -61,6 +66,7 @@ async function seed() {
     'teacher3@test.com',
     'Testpassword1!',
     null,
+    'teacher3username',
     'teacherFirst3',
     'teacherLast3',
     'Teacher 3 bio',
@@ -128,7 +134,8 @@ async function createPost(userId, content) {
 async function createCohort() {
   const cohort = await prisma.cohort.create({
     data: {
-      type: 'SOFTWARE_DEVELOPMENT'
+      type: 'SOFTWARE_DEVELOPMENT',
+      cohortNumber: 1
     }
   })
 
@@ -141,6 +148,7 @@ async function createUser(
   email,
   password,
   cohortId,
+  userName,
   firstName,
   lastName,
   bio,
@@ -151,19 +159,13 @@ async function createUser(
     data: {
       email,
       password: await bcrypt.hash(password, 8),
-      role,
       cohortId,
-      profile: {
-        create: {
-          firstName,
-          lastName,
-          bio,
-          githubUrl
-        }
-      }
-    },
-    include: {
-      profile: true
+      userName,
+      firstName,
+      lastName,
+      bio,
+      githubUrl,
+      role
     }
   })
 
