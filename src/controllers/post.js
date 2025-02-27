@@ -64,3 +64,71 @@ export const getAll = async (req, res) => {
     return sendMessageResponse(res, 500, 'Unable to fetch posts')
   }
 }
+
+export const toggleLike = async (req, res) => {
+  const postId = parseInt(req.params.id)
+  const userId = req.user.id
+
+  try {
+    // Check if user is authenticated
+    if (!req.user) {
+      return sendDataResponse(res, 401, {
+        authorization: 'You must be logged in to perform this action'
+      })
+    }
+
+    // Check if post exists
+    const post = await dbClient.post.findUnique({
+      where: { id: postId }
+    })
+
+    if (!post) {
+      return sendDataResponse(res, 404, { error: 'Post not found' })
+    }
+
+    // Check if user has already liked the post
+    const existingLike = await dbClient.postLike.findUnique({
+      where: {
+        postId_userId: {
+          postId,
+          userId
+        }
+      }
+    })
+
+    if (existingLike) {
+      // Unlike: Remove the like
+      await dbClient.postLike.delete({
+        where: {
+          postId_userId: {
+            postId,
+            userId
+          }
+        }
+      })
+    } else {
+      // Like: Create new like
+      await dbClient.postLike.create({
+        data: {
+          postId,
+          userId
+        }
+      })
+    }
+
+    // Get updated like count
+    const likeCount = await dbClient.postLike.count({
+      where: {
+        postId
+      }
+    })
+
+    return sendDataResponse(res, 200, {
+      liked: !existingLike,
+      likeCount
+    })
+  } catch (error) {
+    console.error('Error toggling post like:', error)
+    return sendMessageResponse(res, 500, 'Unable to process like/unlike action')
+  }
+}
