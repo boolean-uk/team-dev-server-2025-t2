@@ -139,7 +139,7 @@ paths:
       tags:
         - user
       summary: Update a user
-      description: Only users with a TEACHER role can update the cohortId or role. Users with Students role can only update their own details.
+      description: Only users with a TEACHER role can update the cohortId or role. Users with Students role can only update their own details. All fields are optional - only specified fields will be updated.
       operationId: userUpdate
       security:
         - bearerAuth: []
@@ -151,13 +151,13 @@ paths:
           schema:
             type: string
       requestBody:
-        description: The profile info
+        description: The profile info - all fields are optional
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/UpdateUser'
       responses:
-        '201':
+        '200':
           description: Successful operation
           content:
             application/json:
@@ -643,20 +643,28 @@ components:
       properties:
         email:
           type: string
+          nullable: true
         password:
           type: string
+          nullable: true
         cohortId:
           type: integer
+          nullable: true
         role:
           type: string
+          nullable: true
         firstName:
           type: string
+          nullable: true
         lastName:
           type: string
+          nullable: true
         bio:
           type: string
+          nullable: true
         githubUrl:
           type: string
+          nullable: true
 
     Posts:
       type: object
