@@ -130,6 +130,10 @@ export default class User {
     return User._findMany('firstName', firstName)
   }
 
+  static async findManyByLastName(lastName) {
+    return User._findMany('lastName', lastName)
+  }
+
   static async findAll() {
     return User._findMany()
   }
@@ -153,15 +157,23 @@ export default class User {
 
   static async _findMany(key, value) {
     const query = {
-      include: {
-        profile: true
+      select: {
+        id: true,
+        cohortId: true,
+        role: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        }
       }
     }
 
     if (key !== undefined && value !== undefined) {
       query.where = {
         profile: {
-          [key]: value
+          [key]: { equals: value, mode: 'insensitive' }
         }
       }
     }
