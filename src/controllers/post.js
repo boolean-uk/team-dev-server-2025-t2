@@ -132,3 +132,35 @@ export const toggleLike = async (req, res) => {
     return sendMessageResponse(res, 500, 'Unable to process like/unlike action')
   }
 }
+
+export const editPostById = async (req, res) => {
+  const { id } = req.params
+  const { content } = req.body
+
+  const currPost = await dbClient.post.findUnique({
+    where: {
+      id: parseInt(id)
+    }
+  })
+
+  const userId = req.user.id
+
+  if (currPost.userId !== userId) {
+    return sendDataResponse(res, 403, { error: 'Unauthorized' })
+  }
+
+  if (currPost === null) {
+    return sendDataResponse(res, 404, { content: 'Not found' })
+  }
+
+  try {
+    const updatedPost = await dbClient.post.update({
+      where: { id: parseInt(id) },
+      data: { content }
+    })
+
+    return sendDataResponse(res, 201, { post: updatedPost })
+  } catch (error) {
+    return sendMessageResponse(res, 500, 'Unable to update post')
+  }
+}

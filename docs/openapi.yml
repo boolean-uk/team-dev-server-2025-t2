@@ -305,6 +305,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /posts/{id}:
+    patch:
+      tags:
+        - post
+      summary: Update a post
+      description: Only the author of the post can update it.
+      operationId: postEdit
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: 'The post id that needs to be updated'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The post info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePost'
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '401':
+          description: Unauthorized access to edit post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /posts/{id}/toggle-like:
     post:
       tags:
@@ -588,6 +630,12 @@ components:
         githubUrl:
           type: string
         password:
+          type: string
+
+    UpdatePost:
+      type: object
+      properties:
+        content:
           type: string
 
     UpdateUser:
