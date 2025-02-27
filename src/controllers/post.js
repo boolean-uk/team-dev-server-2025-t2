@@ -8,7 +8,23 @@ export const create = async (req, res) => {
     return sendDataResponse(res, 400, { content: 'Must provide content' })
   }
 
-  return sendDataResponse(res, 201, { post: { id: 1, content } })
+  if (!req.user) {
+    return sendDataResponse(res, 401, { error: 'Authentication required' })
+  }
+
+  try {
+    const newPost = await dbClient.post.create({
+      data: {
+        content,
+        userId: req.user.id
+      }
+    })
+
+    return sendDataResponse(res, 201, { post: newPost })
+  } catch (error) {
+    console.error('Error creating post:', error)
+    return sendMessageResponse(res, 500, 'Unable to create post')
+  }
 }
 
 export const getAll = async (req, res) => {
@@ -172,7 +188,7 @@ export const deletePost = async (req, res) => {
   try {
     const post = await dbClient.post.findUnique({
       where: { id: parseInt(id) },
-      indlude: { user: true }
+      include: { user: true }
     })
 
     if (post.user.id !== currentUser) {

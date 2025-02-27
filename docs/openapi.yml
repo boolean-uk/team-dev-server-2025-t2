@@ -257,33 +257,50 @@ paths:
     post:
       tags:
         - post
-      summary: Create post
-      description: This can only be done by the logged in user.
+      summary: Create a new post
+      description: This endpoint allows a logged-in user to create a new post. The user must be authenticated via bearer token.
       operationId: createPost
       security:
         - bearerAuth: []
       requestBody:
-        description: Created post object
+        required: true
+        description: Object containing the content of the post to be created.
         content:
           application/json:
             schema:
               type: object
+              required:
+                - content
               properties:
                 content:
                   type: string
+                  description: The textual content of the post.
       responses:
         201:
-          description: success
+          description: Post created successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Post'
         400:
-          description: fail
+          description: Bad request - typically missing content.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        401:
+          description: Unauthorized - user is not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Server error - unable to create post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     get:
       tags:
         - post
