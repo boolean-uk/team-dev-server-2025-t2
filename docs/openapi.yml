@@ -139,7 +139,12 @@ paths:
       tags:
         - user
       summary: Update a user
-      description: Only users with a TEACHER role can update the cohortId or role. Users with Students role can only update their own details.
+      description: |
+        Updates user profile information with the following rules:
+        - Users can only update their own profile unless they have TEACHER role
+        - Only TEACHER role can update cohortId and role fields
+        - All fields are optional and only specified valid fields will be updated
+        - All fields must pass validation patterns (names, email, password, etc.)
       operationId: userUpdate
       security:
         - bearerAuth: []
@@ -151,20 +156,44 @@ paths:
           schema:
             type: string
       requestBody:
-        description: The profile info
+        description: The profile info - all fields are optional
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/UpdateUser'
       responses:
-        '201':
-          description: Successful operation
+        '200':
+          description: User successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreatedUser'
+        '400':
+          description: Validation error or no valid fields provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
-          description: fail
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Insufficient permissions or attempting to modify restricted fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
@@ -727,20 +756,28 @@ components:
       properties:
         email:
           type: string
+          nullable: true
         password:
           type: string
+          nullable: true
         cohortId:
           type: integer
+          nullable: true
         role:
           type: string
+          nullable: true
         firstName:
           type: string
+          nullable: true
         lastName:
           type: string
+          nullable: true
         bio:
           type: string
+          nullable: true
         githubUrl:
           type: string
+          nullable: true
 
     Posts:
       type: object
