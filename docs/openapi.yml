@@ -139,7 +139,12 @@ paths:
       tags:
         - user
       summary: Update a user
-      description: Only users with a TEACHER role can update the cohortId or role. Users with Students role can only update their own details. All fields are optional - only specified fields will be updated.
+      description: |
+        Updates user profile information with the following rules:
+        - Users can only update their own profile unless they have TEACHER role
+        - Only TEACHER role can update cohortId and role fields
+        - All fields are optional and only specified valid fields will be updated
+        - All fields must pass validation patterns (names, email, password, etc.)
       operationId: userUpdate
       security:
         - bearerAuth: []
@@ -158,13 +163,37 @@ paths:
               $ref: '#/components/schemas/UpdateUser'
       responses:
         '200':
-          description: Successful operation
+          description: User successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreatedUser'
+        '400':
+          description: Validation error or no valid fields provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
-          description: fail
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Insufficient permissions or attempting to modify restricted fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
