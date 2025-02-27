@@ -346,7 +346,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+    delete:
+      tags:
+        - post
+      summary: Delete a post
+      description: Only the author of the post or an admin can delete the post.
+      operationId: postDelete
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: 'The ID of the post to be deleted'
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No content, post deleted successfully
+        '403':
+          description: Forbidden, user not authorized to delete this post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /posts/{id}/toggle-like:
     post:
       tags:

@@ -3,7 +3,8 @@ import {
   create,
   getAll,
   editPostById,
-  toggleLike
+  toggleLike,
+  deletePost
 } from '../controllers/post.js'
 import { validateAuthentication } from '../middleware/auth.js'
 
@@ -13,5 +14,6 @@ router.post('/', validateAuthentication, create)
 router.get('/', validateAuthentication, getAll)
 router.post('/:id/toggle-like', validateAuthentication, toggleLike)
 router.patch('/:id', validateAuthentication, editPostById)
+router.delete('/:id', validateAuthentication, deletePost)
 
 export default router

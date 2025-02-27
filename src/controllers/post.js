@@ -164,3 +164,27 @@ export const editPostById = async (req, res) => {
     return sendMessageResponse(res, 500, 'Unable to update post')
   }
 }
+
+export const deletePost = async (req, res) => {
+  const { id } = req.params
+  const currentUser = req.user.id
+
+  try {
+    const post = await dbClient.post.findUnique({
+      where: { id: parseInt(id) },
+      indlude: { user: true }
+    })
+
+    if (post.user.id !== currentUser) {
+      return sendDataResponse(res, 403, { post: 'User not authorized' })
+    }
+
+    await dbClient.post.delete({
+      where: { id: parseInt(id) }
+    })
+
+    return sendDataResponse(res, 204, {})
+  } catch (error) {
+    return sendMessageResponse(res, 404, 'Post not found')
+  }
+}
