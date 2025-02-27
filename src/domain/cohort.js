@@ -6,21 +6,25 @@ import dbClient from '../utils/dbClient.js'
  */
 export async function createCohort() {
   const createdCohort = await dbClient.cohort.create({
-    data: {}
+    data: {
+      type: 'SOFTWARE_DEVELOPMENT' // Default type
+    }
   })
 
   return new Cohort(createdCohort.id)
 }
 
 export class Cohort {
-  constructor(id = null) {
+  constructor(id = null, type = null) {
     this.id = id
+    this.type = type
   }
 
   toJSON() {
     return {
       cohort: {
-        id: this.id
+        id: this.id,
+        type: this.type
       }
     }
   }

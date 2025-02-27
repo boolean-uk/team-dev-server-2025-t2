@@ -294,15 +294,15 @@ paths:
     get:
       tags:
         - cohort
-      summary: Get all members in a cohort
-      description: Get all students and teachers in a specific cohort. User must be a teacher or a member of the cohort.
+      summary: Get members of a specific cohort
+      description: Returns all members (teachers and students) of a specific cohort. Teachers can access any cohort, students can only access their own cohort.
       operationId: getCohortMembers
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
-          description: Cohort ID
+          description: ID of the cohort to get members from
           required: true
           schema:
             type: integer
@@ -319,6 +319,13 @@ paths:
                   data:
                     type: object
                     properties:
+                      cohort:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          type:
+                            type: string
                       members:
                         type: object
                         properties:
@@ -345,13 +352,19 @@ paths:
                                 lastName:
                                   type: string
         '403':
-          description: Unauthorized access
+          description: Unauthorized access to cohort
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Cohort not found
+          description: No members found in cohort
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
           content:
             application/json:
               schema:

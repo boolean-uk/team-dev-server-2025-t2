@@ -49,7 +49,9 @@ async function createPost(userId, content) {
 
 async function createCohort() {
   const cohort = await prisma.cohort.create({
-    data: {}
+    data: {
+      type: 'SOFTWARE_DEVELOPMENT'
+    }
   })
 
   console.info('Cohort created', cohort)
