@@ -255,7 +255,7 @@ export const updateById = async (req, res) => {
 
 // Function for retrieving user progress
 export const getUserProgress = async (req, res) => {
-  const userId = req.params.id
+  const userId = parseInt(req.params.id)
   const currentUser = req.user
 
   // Check if user is authorized to view progress

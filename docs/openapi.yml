@@ -184,40 +184,40 @@ paths:
         '200':
           description: Successfully retrieved user progress.
           content:
-  application/json:
-    schema:
-      type: object
-      properties:
-        CompletedModules:
-          type: object
-          properties:
-            completed:
-              type: integer
-              example: 2
-            total:
-              type: integer
-              example: 7
-          description: "Number of modules completed out of the total modules."
-        CompletedUnits:
-          type: object
-          properties:
-            completed:
-              type: integer
-              example: 4
-            total:
-              type: integer
-              example: 10
-          description: "Number of units completed out of the total units."
-        CompletedExercises:
-          type: object
-          properties:
-            completed:
-              type: integer
-              example: 34
-            total:
-              type: integer
-              example: 58
-          description: "Number of exercises completed out of the total exercises."
+          application/json:
+            schema:
+              type: object
+              properties:
+                CompletedModules:
+                  type: object
+                  properties:
+                    completed:
+                      type: integer
+                      example: 2
+                    total:
+                      type: integer
+                      example: 7
+                  description: "Number of modules completed out of the total modules."
+                CompletedUnits:
+                  type: object
+                  properties:
+                    completed:
+                      type: integer
+                      example: 4
+                    total:
+                      type: integer
+                      example: 10
+                  description: "Number of units completed out of the total units."
+                CompletedExercises:
+                  type: object
+                  properties:
+                    completed:
+                      type: integer
+                      example: 34
+                    total:
+                      type: integer
+                      example: 58
+                  description: "Number of exercises completed out of the total exercises."
         '403':
           description: Access denied - user does not have permission to view this progress.
           content:
