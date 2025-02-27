@@ -21,24 +21,18 @@ model User {
   id            Int       @id @default(autoincrement())
   email         String    @unique
   password      String
+  userName      String
+  firstName     String
+  lastName      String
+  githubUrl     String?
+  bio           String?
   role          Role      @default(STUDENT)
-  profile       Profile?
   cohortId      Int?
   cohort        Cohort?   @relation(fields: [cohortId], references: [id])
   posts         Post[]
   deliveryLogs  DeliveryLog[]
   postLikes     PostLike[]
   postComments  PostComment[]
-}
-
-model Profile {
-  id          Int       @id @default(autoincrement())
-  userId      Int       @unique
-  user        User      @relation(fields: [userId], references: [id])
-  firstName   String
-  lastName    String
-  bio         String?
-  githubUrl   String?
 }
 
 enum CohortType {
@@ -51,6 +45,7 @@ model Cohort {
   id            Int           @id @default(autoincrement())
   type          CohortType    @default(SOFTWARE_DEVELOPMENT)
   users         User[]
+  cohortNumber  Int
   deliveryLogs  DeliveryLog[]
 }
 

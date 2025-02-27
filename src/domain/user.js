@@ -7,34 +7,45 @@ export default class User {
    * take as inputs, what types they return, and other useful information that JS doesn't have built in
    * @tutorial https://www.valentinog.com/blog/jsdoc
    *
-   * @param { { id: int, cohortId: int, email: string, profile: { firstName: string, lastName: string, bio: string, githubUrl: string } } } user
+   * @param { { id: int, cohortId: int, firstName: string, lastName: string, userName: string, email: string bio: string, githubUrl: string } } user
    * @returns {User}
    */
   static fromDb(user) {
     return new User(
       user.id,
       user.cohortId,
-      user.profile?.firstName,
-      user.profile?.lastName,
+      user.role,
+      user.firstName,
+      user.lastName,
+      user.userName,
       user.email,
-      user.profile?.bio,
-      user.profile?.githubUrl,
-      user.password,
-      user.role
+      user.bio,
+      user.githubUrl,
+      user.password
     )
   }
 
   static async fromJson(json) {
     // eslint-disable-next-line camelcase
-    const { firstName, lastName, email, biography, githubUrl, password } = json
+    const {
+      firstName,
+      lastName,
+      userName,
+      email,
+      biography,
+      githubUrl,
+      password
+    } = json
 
     const passwordHash = await bcrypt.hash(password, 8)
 
     return new User(
       null,
       null,
+      'STUDENT',
       firstName,
       lastName,
+      userName,
       email,
       biography,
       githubUrl,
@@ -45,23 +56,25 @@ export default class User {
   constructor(
     id,
     cohortId,
+    role = 'STUDENT',
     firstName,
     lastName,
+    userName,
     email,
     bio,
     githubUrl,
-    passwordHash = null,
-    role = 'STUDENT'
+    passwordHash = null
   ) {
     this.id = id
     this.cohortId = cohortId
+    this.role = role
     this.firstName = firstName
     this.lastName = lastName
+    this.userName = userName
     this.email = email
     this.bio = bio
     this.githubUrl = githubUrl
     this.passwordHash = passwordHash
-    this.role = role
   }
 
   toJSON() {
@@ -72,6 +85,7 @@ export default class User {
         role: this.role,
         firstName: this.firstName,
         lastName: this.lastName,
+        userName: this.userName,
         email: this.email,
         biography: this.bio,
         githubUrl: this.githubUrl
@@ -85,9 +99,14 @@ export default class User {
    */
   async save() {
     const data = {
+      role: this.role,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      userName: this.userName,
       email: this.email,
-      password: this.passwordHash,
-      role: this.role
+      bio: this.bio,
+      githubUrl: this.githubUrl,
+      password: this.passwordHash
     }
 
     if (this.cohortId) {
@@ -98,21 +117,8 @@ export default class User {
       }
     }
 
-    if (this.firstName && this.lastName) {
-      data.profile = {
-        create: {
-          firstName: this.firstName,
-          lastName: this.lastName,
-          bio: this.bio,
-          githubUrl: this.githubUrl
-        }
-      }
-    }
     const createdUser = await dbClient.user.create({
-      data,
-      include: {
-        profile: true
-      }
+      data
     })
 
     return User.fromDb(createdUser)
@@ -142,9 +148,6 @@ export default class User {
     const foundUser = await dbClient.user.findUnique({
       where: {
         [key]: value
-      },
-      include: {
-        profile: true
       }
     })
 
@@ -161,20 +164,14 @@ export default class User {
         id: true,
         cohortId: true,
         role: true,
-        profile: {
-          select: {
-            firstName: true,
-            lastName: true
-          }
-        }
+        firstName: true,
+        lastName: true
       }
     }
 
     if (key !== undefined && value !== undefined) {
       query.where = {
-        profile: {
-          [key]: { equals: value, mode: 'insensitive' }
-        }
+        [key]: { equals: value, mode: 'insensitive' }
       }
     }
 
@@ -188,10 +185,7 @@ export default class User {
       where: {
         id: this.id
       },
-      data: {},
-      include: {
-        profile: true
-      }
+      data: {}
     }
 
     // Handle user-level updates
@@ -203,33 +197,6 @@ export default class User {
     }
     if (typeof data.cohortId === 'number') {
       updateData.data.cohortId = data.cohortId
-    }
-
-    // Handle profile-related updates
-    const profileUpdates = {}
-    let hasProfileUpdates = false
-
-    if (data.firstName && data.firstName !== 'string') {
-      profileUpdates.firstName = data.firstName
-      hasProfileUpdates = true
-    }
-    if (data.lastName && data.lastName !== 'string') {
-      profileUpdates.lastName = data.lastName
-      hasProfileUpdates = true
-    }
-    if (data.bio && data.bio !== 'string') {
-      profileUpdates.bio = data.bio
-      hasProfileUpdates = true
-    }
-    if (data.githubUrl && data.githubUrl !== 'string') {
-      profileUpdates.githubUrl = data.githubUrl
-      hasProfileUpdates = true
-    }
-
-    if (hasProfileUpdates) {
-      updateData.data.profile = {
-        update: profileUpdates
-      }
     }
 
     const updatedUser = await dbClient.user.update(updateData)

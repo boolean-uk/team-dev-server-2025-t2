@@ -714,15 +714,17 @@ components:
       properties:
         id:
           type: integer
-        email:
-          type: string
-        role:
-          type: string
         cohortId:
           type: integer
+        role:
+          type: string
         firstName:
           type: string
         lastName:
+          type: string
+        userName:
+          type: string
+        email:
           type: string
         bio:
           type: string
@@ -735,6 +737,8 @@ components:
         firstName:
           type: string
         lastName:
+          type: string
+        userName:
           type: string
         email:
           type: string
@@ -835,8 +839,6 @@ components:
               properties:
                 id:
                   type: integer
-                email:
-                  type: string
                 cohortId:
                   type: integer
                 role:
@@ -844,6 +846,10 @@ components:
                 firstName:
                   type: string
                 lastName:
+                  type: string
+                userName:
+                  type: string
+                email:
                   type: string
                 bio:
                   type: string
