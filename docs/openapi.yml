@@ -169,6 +169,90 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /users/{id}/progress:
+    get:
+      tags:
+        - User
+      summary: Retrieve user progress
+      description: Returns progress data for a user, accessible by the user or a teacher.
+      operationId: getUserProgress
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user whose progress is being retrieved.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved user progress.
+          content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                CompletedModules:
+                  type: object
+                  properties:
+                    completed:
+                      type: integer
+                      example: 2
+                    total:
+                      type: integer
+                      example: 7
+                  description: "Number of modules completed out of the total modules."
+                CompletedUnits:
+                  type: object
+                  properties:
+                    completed:
+                      type: integer
+                      example: 4
+                    total:
+                      type: integer
+                      example: 10
+                  description: "Number of units completed out of the total units."
+                CompletedExercises:
+                  type: object
+                  properties:
+                    completed:
+                      type: integer
+                      example: 34
+                    total:
+                      type: integer
+                      example: 58
+                  description: "Number of exercises completed out of the total exercises."
+        '403':
+          description: Access denied - user does not have permission to view this progress.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Access Denied: You can only view your own or your students progress.'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authorization:
+                    type: string
+                    example: 'Missing Authorization header'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Internal Server Error: Unable to retrieve user progress'
   /posts:
     post:
       tags:

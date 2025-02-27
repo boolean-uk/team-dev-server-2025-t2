@@ -289,3 +289,38 @@ export const updateById = async (req, res) => {
     )
   }
 }
+
+// Function for retrieving user progress
+export const getUserProgress = async (req, res) => {
+  const userId = parseInt(req.params.id)
+  const currentUser = req.user
+
+  // Check if user is authorized to view progress
+  if (currentUser.role !== 'TEACHER' && currentUser.id !== userId) {
+    return sendDataResponse(res, 403, {
+      error: 'You are not authorized to view this user progress'
+    })
+  }
+
+  try {
+    // Using json sample-data as requested
+    const progressData = {
+      CompletedModules: {
+        completed: 2,
+        total: 7
+      },
+      CompletedUnits: {
+        completed: 4,
+        total: 10
+      },
+      CompletedExercises: {
+        completed: 34,
+        total: 58
+      }
+    }
+    return sendDataResponse(res, 200, progressData)
+  } catch (error) {
+    console.error('Failed to retrieve user progress:', error)
+    return sendMessageResponse(res, 500, 'Failed to retrieve user progress')
+  }
+}
