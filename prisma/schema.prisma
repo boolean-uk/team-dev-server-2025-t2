@@ -24,6 +24,7 @@ model User {
   userName      String
   firstName     String
   lastName      String
+  mobile        String?
   githubUrl     String?
   bio           String?
   role          Role      @default(STUDENT)

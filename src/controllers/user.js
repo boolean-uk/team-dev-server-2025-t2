@@ -134,7 +134,8 @@ export const updateById = async (req, res) => {
     password,
     cohort_id: cohortIdSnake,
     cohortId: cohortIdCamel,
-    role
+    role,
+    mobile
   } = req.body
 
   // Input validation patterns
@@ -145,7 +146,8 @@ export const updateById = async (req, res) => {
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
     biography: /^[\s\S]{0,500}$/,
     githubUrl: /^https:\/\/github\.com\/[a-zA-Z0-9-]+$/,
-    role: /^(STUDENT|TEACHER)$/
+    role: /^(STUDENT|TEACHER)$/,
+    mobile: /^\+?[1-9]\d{1,14}$/
   }
 
   // Validation helper function
@@ -193,6 +195,9 @@ export const updateById = async (req, res) => {
   }
   if (role && !validateField('role', role, validationPatterns.role)) {
     validationErrors.role = 'Invalid role'
+  }
+  if (mobile && !validateField('mobile', mobile, validationPatterns.mobile)) {
+    validationErrors.mobile = 'Invalid mobile number format'
   }
 
   // Check for validation errors
@@ -269,6 +274,7 @@ export const updateById = async (req, res) => {
       addValidField('bio', biography)
       addValidField('githubUrl', githubUrl)
       addValidField('email', email)
+      addValidField('mobile', mobile)
     }
 
     // If no valid fields to update
