@@ -21,9 +21,9 @@ model User {
   id            Int       @id @default(autoincrement())
   email         String    @unique
   password      String
-  userName      String
-  firstName     String
-  lastName      String
+  userName      String?
+  firstName     String?
+  lastName      String?
   githubUrl     String?
   bio           String?
   role          Role      @default(STUDENT)

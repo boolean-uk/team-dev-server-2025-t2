@@ -733,20 +733,25 @@ components:
 
     CreateUser:
       type: object
+      required:
+        - email
+        - password
       properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
         firstName:
           type: string
         lastName:
           type: string
         userName:
           type: string
-        email:
-          type: string
         bio:
           type: string
         githubUrl:
-          type: string
-        password:
           type: string
 
     UpdatePost:
