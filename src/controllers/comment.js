@@ -41,13 +41,9 @@ export const createComment = async (req, res) => {
       },
       include: {
         user: {
-          include: {
-            profile: {
-              select: {
-                firstName: true,
-                lastName: true
-              }
-            }
+          select: {
+            firstName: true,
+            lastName: true
           }
         }
       }
@@ -60,8 +56,8 @@ export const createComment = async (req, res) => {
       createdAt: comment.createdAt,
       author: {
         id: comment.user.id,
-        firstName: comment.user.profile.firstName,
-        lastName: comment.user.profile.lastName
+        firstName: comment.user.firstName,
+        lastName: comment.user.lastName
       }
     }
 
