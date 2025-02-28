@@ -26,16 +26,19 @@ export default class User {
   }
 
   static async fromJson(json) {
-    // eslint-disable-next-line camelcase
     const {
-      firstName,
-      lastName,
-      userName,
       email,
-      biography,
-      githubUrl,
-      password
+      password,
+      firstName = null,
+      lastName = null,
+      userName = null,
+      biography = null,
+      githubUrl = null
     } = json
+
+    if (!email || !password) {
+      throw new Error('Email and password are required')
+    }
 
     const passwordHash = await bcrypt.hash(password, 8)
 
