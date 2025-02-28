@@ -2,6 +2,9 @@ import validator from 'validator'
 import User from '../domain/user.js'
 import { sendDataResponse, sendMessageResponse } from '../utils/responses.js'
 import bcrypt from 'bcrypt'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export const create = async (req, res) => {
   const userToCreate = await User.fromJson(req.body)
@@ -208,7 +211,12 @@ export const updateById = async (req, res) => {
   const cohortId = cohortIdSnake ?? cohortIdCamel
 
   try {
-    const userToUpdate = await User.findById(userId)
+    // Find the user using Prisma client
+    const userToUpdate = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
 
     if (!userToUpdate) {
       return sendDataResponse(res, 404, { id: 'User not found' })
@@ -284,7 +292,13 @@ export const updateById = async (req, res) => {
       })
     }
 
-    const updatedUser = await userToUpdate.update(updateData)
+    // Update the user using Prisma client
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: updateData
+    })
 
     return sendDataResponse(res, 200, updatedUser)
   } catch (error) {
