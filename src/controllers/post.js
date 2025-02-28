@@ -20,12 +20,6 @@ export const getAll = async (req, res) => {
       include: {
         user: {
           include: {
-            profile: {
-              select: {
-                firstName: true,
-                lastName: true
-              }
-            },
             cohort: {
               select: {
                 id: true,
@@ -49,8 +43,8 @@ export const getAll = async (req, res) => {
       createdAt: post.createdAt,
       author: {
         id: post.user.id,
-        firstName: post.user.profile.firstName,
-        lastName: post.user.profile.lastName,
+        firstName: post.user.firstName,
+        lastName: post.user.lastName,
         cohort: post.user.cohort
       },
       stats: {
